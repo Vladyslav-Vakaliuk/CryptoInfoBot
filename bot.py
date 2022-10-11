@@ -1,6 +1,5 @@
 from pycoingecko import CoinGeckoAPI
 import telebot
-from telebot import types
 import config
 import coin_dict
 import gas_price
