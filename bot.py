@@ -4,10 +4,8 @@ import config
 import coin_dict
 import gas_price
 
-
 bot = telebot.TeleBot(config.BOT_TOKEN)
 cg = CoinGeckoAPI()
-
 
 
 @bot.message_handler(commands=['start', 'help'])
@@ -82,7 +80,7 @@ def gas(message):
 
 @bot.message_handler(commands=['click'])
 def enjoy(message):
-    gif = open('sourse\gifka_rus.MP4', 'rb')
+    gif = open('source\gifka_rus.MP4', 'rb')
     bot.send_video(message.chat.id, gif)
 
 

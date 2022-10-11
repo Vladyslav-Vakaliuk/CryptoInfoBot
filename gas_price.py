@@ -1,4 +1,4 @@
-from ethereum_gasprice.providers import EtherscanProvider, AsyncEtherscanProvider
+from ethereum_gasprice.providers import EtherscanProvider
 from httpx import Client
 import config
 
