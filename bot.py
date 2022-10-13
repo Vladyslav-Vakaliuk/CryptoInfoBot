@@ -64,8 +64,9 @@ def price_comand(message):
 
 @bot.message_handler(commands=['gas'])
 def gas(message):
+    gas_price.gas_func()
     link = 'https://etherscan.io/gastracker'
-    mess = f'<b>Gas Price Now ⛽:</b> \n' \
+    mess = f'<b>Актуальна ціна газу ⛽:</b> \n' \
           f'\n' \
           f'🔥 Low ~ {gas_price.low} GWEI\n' \
           f'--------------------------------------\n' \
@@ -73,7 +74,7 @@ def gas(message):
           f'---------------------------------------\n' \
           f'🧨 Hight ~ {gas_price.hight} GWEI\n' \
           f'\n' \
-          f'<b>Info from:</b> {link}'  
+          f'<b>Інформація з:</b> {link}'  
                     
     bot.send_message(message.chat.id, mess, parse_mode='html')
 
