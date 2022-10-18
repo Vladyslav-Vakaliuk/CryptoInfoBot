@@ -81,8 +81,8 @@ def gas(message):
 
 @bot.message_handler(commands=['click'])
 def enjoy(message):
-    gif = open('source\gifka_rus.MP4', 'rb')
-    bot.send_video(message.chat.id, gif)
+    with open('source\gifka_rus.MP4', 'rb') as gif:
+        bot.send_video(message.chat.id, gif)
 
 
 
