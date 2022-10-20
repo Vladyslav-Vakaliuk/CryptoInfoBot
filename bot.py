@@ -3,10 +3,19 @@ import telebot
 import config
 import coin_dict
 import gas_price
+import sqlite3
 
 bot = telebot.TeleBot(config.BOT_TOKEN)
 cg = CoinGeckoAPI()
 
+
+
+conn = sqlite3.connect('database.db', check_same_thread=False)
+cursor = conn.cursor()
+
+def db_table_val(user_id: int, user_name: str, user_surname: str, username: str):
+	cursor.execute('INSERT INTO users (user_id, user_name, user_surname, username) VALUES (?, ?, ?, ?)', (user_id, user_name, user_surname, username))
+	conn.commit()
 
 @bot.message_handler(commands=['start', 'help'])
 def start(message):
@@ -29,7 +38,10 @@ def start(message):
            f'\n' \
            f'TRC20 - <code>TQHZqsDZVyj4KRpZf7789ckBNuN6vABeAu</code>'     
               
-           
+    try:
+        db_table_val(user_id=message.from_user.id, user_name=message.from_user.first_name, user_surname=message.from_user.last_name, username=message.from_user.username) 
+    except:
+        pass       
     bot.send_message(message.chat.id, mess, parse_mode='html')
 
 @bot.message_handler(commands=['price'])

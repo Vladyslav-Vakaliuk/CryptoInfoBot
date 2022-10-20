@@ -19,6 +19,7 @@ ETHERSCAN_TOKEN = 'Your Token'
 pip install pyTelegramBotAPI 
 pip install -U pycoingecko
 pip install ethereum-gasprice
+pip install sqlite3
 ```
 4. To run this bot use: 
 ```
