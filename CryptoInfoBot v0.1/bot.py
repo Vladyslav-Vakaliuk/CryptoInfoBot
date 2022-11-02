@@ -1,22 +1,32 @@
-from pycoingecko import CoinGeckoAPI
 import telebot
 import config
 import coin_dict
 import gas_price
 import sqlite3
 
-bot = telebot.TeleBot(config.BOT_TOKEN)
+from telebot import types
+from pycoingecko import CoinGeckoAPI
+
+# Connect to Telegram API
+try:
+    bot = telebot.TeleBot(config.BOT_TOKEN)
+except:
+    print('Error connect')
+
+# Connect to Coingecko API
 cg = CoinGeckoAPI()
 
-
-
+# Connect to SQlite3
 conn = sqlite3.connect('database.db', check_same_thread=False)
 cursor = conn.cursor()
 
+# SQlite 
 def db_table_val(user_id: int, user_name: str, user_surname: str, username: str):
 	cursor.execute('INSERT INTO users (user_id, user_name, user_surname, username) VALUES (?, ?, ?, ?)', (user_id, user_name, user_surname, username))
 	conn.commit()
 
+
+# Bot commands
 @bot.message_handler(commands=['start', 'help'])
 def start(message):
     mess = f'Привіт, <b>{message.from_user.first_name}</b>\n' \
@@ -44,14 +54,19 @@ def start(message):
         pass       
     bot.send_message(message.chat.id, mess, parse_mode='html')
 
+
 @bot.message_handler(commands=['price'])
-def price_comand(message):
-    mess = bot.send_message(message.chat.id, f'<b>Введіть назву, наприклад "BTC":</b> ', parse_mode='html')
-    bot.register_next_step_handler(mess, price_comand)
+def price_comand(message):    
 
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add('BTC', 'ETH', 'BNB', 'XRP', 'ADA', 'DOGE')
 
+    mess = bot.send_message(message.chat.id, f'<b>Введіть назву, наприклад "BTC":</b> ', parse_mode='html', reply_markup = markup)
+    bot.register_next_step_handler(mess, price_function)
 
-def price_comand(message):
+ 
+
+def price_function(message):
     crypto_id = message.text.lower()
     key = crypto_id
     if key in coin_dict.coin_list:
@@ -69,10 +84,10 @@ def price_comand(message):
                f'---------------------------------- \n' \
                f'📌 <b>24 H:</b> {usd_24h_change} % 📊'  
         bot.send_message(message.chat.id, mess, parse_mode='html')
-        
+        return price_comand(message)
     else:    
         bot.send_message(message.chat.id, f'Gavno xyle, try again xyle... 💩 ', parse_mode='html')
-
+        return price_comand(message)
 
 @bot.message_handler(commands=['gas'])
 def gas(message):
@@ -101,5 +116,7 @@ def enjoy(message):
 @bot.message_handler(commands=['alert'])
 def alert(message):
     bot.send_message(message.chat.id, 'Команда в розробці <3')
+
+
 
 bot.polling(none_stop=True)
