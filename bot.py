@@ -1,6 +1,10 @@
 import coin_dict
 import gas_price
 import sqlite3
+import time
+import threading
+
+from bubbles import make_screen
 
 from sqlite3 import Error
 
@@ -12,13 +16,14 @@ from aiogram.dispatcher import FSMContext
 from pycoingecko import CoinGeckoAPI
 from config import BOT_TOKEN
 
+from PIL import Image
+from urllib.request import urlopen
 
-
-
+# Connect to database
 try:
     conn = sqlite3.connect('database.db', check_same_thread=False)
     cursor = conn.cursor()
-    print("Connected successfully")
+    print("Database connected successfully")
 except Error as e:
         print(f"The error '{e}' occurred")
 
@@ -37,21 +42,47 @@ async def db_table_val(user_id: int, user_name: str, user_surname: str, username
 	cursor.execute('INSERT INTO users (user_id, user_name, user_surname, username) VALUES (?, ?, ?, ?)', (user_id, user_name, user_surname, username))
 	conn.commit()
 
+async def db_table_update_alert(alert: str, user_id: int):
+    cursor.execute('UPDATE users SET alert = ? WHERE user_id = ?', (alert, user_id))
+    conn.commit()
 
+async def db_table_check_alert(user_id: int):
+    cursor.execute('SELECT alert FROM users WHERE user_id = ?', (user_id,))
+    conn.commit()
+    alert_result = cursor.fetchone()[0]
+    
+    if alert_result == 'yes':
+        print('YES')
+    
+    elif alert_result == 'no':
+        print('NO')
+
+
+
+
+# Connect to Telegram API 
+try:
+    bot = Bot(token=BOT_TOKEN)
+    print("Bot connected successfully")
+except:
+    print("Error to cennect API telegram")
 
 storage = MemoryStorage()
 
-bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(bot, storage=storage)
 
 cg = CoinGeckoAPI()
 
 class  ProfileStatesGroup(StatesGroup):
-
     gas = State()
     alert = State()
     coin = State()
 
+
+def bubbles_update():
+    while True:
+        make_screen()
+        time.sleep(3600)
 
 
 @dp.message_handler(commands=['start', 'help'], state='*')
@@ -68,7 +99,8 @@ async def start(message: types.Message, state: FSMContext):
            f'\n' \
            f'/start aбо /help - Отримати це повідомлення \n' \
            f'/gas - Отримати актуальну ціну на газ в мережі ETH \n' \
-           f'/alert - Поставити оповіщення про зміну ціни криптовалюти \n'\
+           f'/index - Дізнатися індекс страху та жадібності \n' \
+           f'/bubbles - Зміна цін топ 100 криптовалют за 24 години \n'\
            f'\n' \
            f'Якщо ви не знайшли якийсь токен, просто напишіть мені і я одразу його додам 👌\n' \
            f'\n' \
@@ -81,11 +113,9 @@ async def start(message: types.Message, state: FSMContext):
            f'\n' \
            f'TRC20 - <code>TQHZqsDZVyj4KRpZf7789ckBNuN6vABeAu</code>' 
 
-
-
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    markup.add('BTC', 'ETH', 'BNB', 'XRP', 'ADA', 'DOGE', 'SOL', 'DOT', 'APT', 'NEAR', 'AVAX', 'TRX')
-                 
+    markup.add('BTC', 'ETH', 'BNB', 'XRP', 'ADA', 'DOGE', 'SOL', 'DOT', 'APT', 'NEAR', 'AVAX', 'TRX')   
+
     try:
         await db_table_val(user_id=message.from_user.id, user_name=message.from_user.first_name, user_surname=message.from_user.last_name, username=message.from_user.username) 
     except:
@@ -97,16 +127,6 @@ async def start(message: types.Message, state: FSMContext):
 
 
     await bot.send_message(message.chat.id, mess, parse_mode='html', reply_markup=markup)
-    await ProfileStatesGroup.coin.set()
-    
-
-@dp.message_handler(commands=['alert'], state='*')
-async def price_alert_comand(message: types.Message, state: FSMContext):
-   
-    if state is None:
-        return
-
-    await bot.send_message(message.chat.id, 'Команда в розробці <3')
     await ProfileStatesGroup.coin.set()
 
 
@@ -122,7 +142,7 @@ async def gas(message: types.Message, state: FSMContext):
           f'---------------------------------------\n' \
           f'🧨 Hight ~ {gas_price.hight} GWEI\n' \
           f'\n' \
-          f'<b>Інформація з:</b> {link}'  
+          f'<b>Інформація з:</b> {link}'
     await bot.send_message(message.chat.id, mess, parse_mode='html')
 
     if state is None:
@@ -130,6 +150,27 @@ async def gas(message: types.Message, state: FSMContext):
 
     await ProfileStatesGroup.coin.set()
 
+@dp.message_handler(commands=['index'], state='*')
+async def index(message: types.Message, state: FSMContext):
+    url = 'https://alternative.me/crypto/fear-and-greed-index.png'
+    image = (urlopen(url))
+    
+    await bot.send_photo(message.chat.id, photo=image, parse_mode='html')
+
+    if state is None:
+        return
+
+    await ProfileStatesGroup.coin.set()
+
+@dp.message_handler(commands=['bubbles'], state='*')
+async def bubbles(message: types.Message, state: FSMContext):  
+    with open('bubbles.png', 'rb') as img:
+        await bot.send_photo(message.chat.id, img)
+
+    if state is None:
+        return
+
+    await ProfileStatesGroup.coin.set()
 
 @dp.message_handler(content_types=['text'], state=ProfileStatesGroup.coin)
 async def price(message: types.Message, state: FSMContext):
@@ -148,10 +189,10 @@ async def price(message: types.Message, state: FSMContext):
             f'---------------------------------- \n' \
             f'📌 <b>24 H:</b> {usd_24h_change} % 📊'  
         await bot.send_message(message.chat.id, mess, parse_mode='html')
-    else:    
-        await bot.send_message(message.chat.id, f'Gavno xyle, try again xyle... 💩 ', parse_mode='html')
+
 
 
 
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    threading.Thread(target = bubbles_update).start()
+    executor.start_polling(dp, skip_updates=True)   
