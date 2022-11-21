@@ -42,23 +42,6 @@ async def db_table_val(user_id: int, user_name: str, user_surname: str, username
 	cursor.execute('INSERT INTO users (user_id, user_name, user_surname, username) VALUES (?, ?, ?, ?)', (user_id, user_name, user_surname, username))
 	conn.commit()
 
-async def db_table_update_alert(alert: str, user_id: int):
-    cursor.execute('UPDATE users SET alert = ? WHERE user_id = ?', (alert, user_id))
-    conn.commit()
-
-async def db_table_check_alert(user_id: int):
-    cursor.execute('SELECT alert FROM users WHERE user_id = ?', (user_id,))
-    conn.commit()
-    alert_result = cursor.fetchone()[0]
-    
-    if alert_result == 'yes':
-        print('YES')
-    
-    elif alert_result == 'no':
-        print('NO')
-
-
-
 
 # Connect to Telegram API 
 try:
