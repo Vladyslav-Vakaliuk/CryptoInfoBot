@@ -16,7 +16,6 @@ from aiogram.dispatcher import FSMContext
 from pycoingecko import CoinGeckoAPI
 from config import BOT_TOKEN
 
-from PIL import Image
 from urllib.request import urlopen
 
 # Connect to database
@@ -42,7 +41,6 @@ async def db_table_val(user_id: int, user_name: str, user_surname: str, username
 	cursor.execute('INSERT INTO users (user_id, user_name, user_surname, username) VALUES (?, ?, ?, ?)', (user_id, user_name, user_surname, username))
 	conn.commit()
 
-
 # Connect to Telegram API 
 try:
     bot = Bot(token=BOT_TOKEN)
@@ -58,8 +56,6 @@ cg = CoinGeckoAPI()
 
 class  ProfileStatesGroup(StatesGroup):
     gas = State()
-    alert = State()
-    coin = State()
 
 
 def bubbles_update():
