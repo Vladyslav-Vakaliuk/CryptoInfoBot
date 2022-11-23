@@ -19,7 +19,7 @@ pip install pyTelegramBotAPI
 pip install -U pycoingecko
 pip install ethereum-gasprice
 ```
-4)To run this bot use: 
+4. To run this bot use: 
 ```
 python bot.py
 ```
