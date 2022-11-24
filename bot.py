@@ -55,7 +55,7 @@ dp = Dispatcher(bot, storage=storage)
 cg = CoinGeckoAPI()
 
 class  ProfileStatesGroup(StatesGroup):
-    gas = State()
+    coin = State()
 
 
 def bubbles_update():
@@ -162,12 +162,20 @@ async def price(message: types.Message, state: FSMContext):
         price = price_response[crypto_name][main_currency]
         usd_24h_change = price_response[crypto_name]['usd_24h_change']
         usd_24h_change = round(usd_24h_change, 2)
-        mess = f'💰 <b>{crypto_id.upper()}</b> 🔥\n' \
-            f'---------------------------------- \n' \
-            f'📍 <b>Ціна</b> ~ {price} 💲\n' \
-            f'---------------------------------- \n' \
-            f'📌 <b>24 H:</b> {usd_24h_change} % 📊'  
-        await bot.send_message(message.chat.id, mess, parse_mode='html')
+        if usd_24h_change < 0:
+            mess = f'💰 <b>{crypto_id.upper()}</b> 🔥\n' \
+                f'---------------------------------- \n' \
+                f'📍 <b>Ціна</b> ~ {price} 💲\n' \
+                f'---------------------------------- \n' \
+                f'📌 <b>24 H:</b> {usd_24h_change} % 📊'  
+            await bot.send_message(message.chat.id, mess, parse_mode='html')
+        else: 
+            mess = f'💰 <b>{crypto_id.upper()}</b> 🔥\n' \
+                f'---------------------------------- \n' \
+                f'📍 <b>Ціна</b> ~ {price} 💲\n' \
+                f'---------------------------------- \n' \
+                f'📌 <b>24 H:</b> +{usd_24h_change} % 📊'  
+            await bot.send_message(message.chat.id, mess, parse_mode='html')
 
 
 
