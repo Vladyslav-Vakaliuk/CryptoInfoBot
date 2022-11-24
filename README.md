@@ -1,5 +1,5 @@
 A Telegram Bot with cryptocurrency price and some other cool features.
-You can check the price of a cryptocurrency in real time and set a daily price alert for the selected cryptocurrency 
+You can check the price of a cryptocurrency in real time
 
 https://t.me/crazycryptoinfobot
 
@@ -19,7 +19,7 @@ pip install pyTelegramBotAPI
 pip install -U pycoingecko
 pip install ethereum-gasprice
 ```
-4)To run this bot use: 
+4. To run this bot use: 
 ```
 python bot.py
 ```
