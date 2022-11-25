@@ -1,12 +1,13 @@
+import logging
+import threading
+import time
+
 import coin_dict
 import gas_price
-import sqlite3
-import time
-import threading
+import database
 
-from bubbles import make_screen
-
-from sqlite3 import Error
+from config import BOT_TOKEN
+from screenshots import make_screen_bubbles
 
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -14,42 +15,22 @@ from aiogram import types, executor, Dispatcher, Bot
 from aiogram.dispatcher import FSMContext
 
 from pycoingecko import CoinGeckoAPI
-from config import BOT_TOKEN
-
 from urllib.request import urlopen
 
+logging.basicConfig(filename='logs.log', level=logging.DEBUG,
+                    format=' %(asctime)s - %(levelname)s - %(message)s')
+
+
 # Connect to database
-try:
-    conn = sqlite3.connect('database.db', check_same_thread=False)
-    cursor = conn.cursor()
-    print("Database connected successfully")
-except Error as e:
-        print(f"The error '{e}' occurred")
-
-conn.execute("""
-                CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
-                user_id INTEGER UNIQUE NOT NULL,
-                user_name TEXT INTEGER NOT NULL,
-                user_surname TEXT,
-                username STRING TEXT,
-                alert TEXT DEFAULT "none"
-            );  """)
-            
-
-async def db_table_val(user_id: int, user_name: str, user_surname: str, username: str):
-	cursor.execute('INSERT INTO users (user_id, user_name, user_surname, username) VALUES (?, ?, ?, ?)', (user_id, user_name, user_surname, username))
-	conn.commit()
+database.db_connect()
 
 # Connect to Telegram API 
 try:
     bot = Bot(token=BOT_TOKEN)
-    print("Bot connected successfully")
 except:
-    print("Error to cennect API telegram")
+    pass
 
 storage = MemoryStorage()
-
 dp = Dispatcher(bot, storage=storage)
 
 cg = CoinGeckoAPI()
@@ -60,8 +41,8 @@ class  ProfileStatesGroup(StatesGroup):
 
 def bubbles_update():
     while True:
-        make_screen()
-        time.sleep(3600)
+        make_screen_bubbles()
+        time.sleep(1800)
 
 
 @dp.message_handler(commands=['start', 'help'], state='*')
@@ -96,7 +77,7 @@ async def start(message: types.Message, state: FSMContext):
     markup.add('BTC', 'ETH', 'BNB', 'XRP', 'ADA', 'DOGE', 'SOL', 'DOT', 'APT', 'NEAR', 'AVAX', 'TRX')   
 
     try:
-        await db_table_val(user_id=message.from_user.id, user_name=message.from_user.first_name, user_surname=message.from_user.last_name, username=message.from_user.username) 
+        await database.db_table_val(user_id=message.from_user.id, user_name=message.from_user.first_name, user_surname=message.from_user.last_name, username=message.from_user.username) 
     except:
         pass     
     
@@ -143,7 +124,7 @@ async def index(message: types.Message, state: FSMContext):
 
 @dp.message_handler(commands=['bubbles'], state='*')
 async def bubbles(message: types.Message, state: FSMContext):  
-    with open('bubbles.png', 'rb') as img:
+    with open('source/bubbles.png', 'rb') as img:
         await bot.send_photo(message.chat.id, img)
 
     if state is None:
