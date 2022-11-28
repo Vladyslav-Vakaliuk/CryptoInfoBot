@@ -1,5 +1,9 @@
+import json
+import pandas as pd
 import sqlite3
 from sqlite3 import Error
+
+
 
 def db_connect():
     try:
@@ -18,7 +22,29 @@ def db_connect():
                     username STRING TEXT,
                     language TEXT
                 );  """)
+    
+    # # Open JSON data
+    # with open("source/coins.json", "rb") as f:
+    #     data = json.load(f)
 
-async def db_table_val(user_id: int, user_name: str, user_surname: str, username: str):
+    # # Create A DataFrame From the JSON Data
+    # df = pd.DataFrame(data)
+    # df.to_sql("coins", conn)
+
+
+def db_table_val(user_id: int, user_name: str, user_surname: str, username: str):
 	cursor.execute('INSERT INTO users (user_id, user_name, user_surname, username) VALUES (?, ?, ?, ?)', (user_id, user_name, user_surname, username))
 	conn.commit()
+
+def find_id(symbol: str):
+        cursor.execute('SELECT id, name FROM coins WHERE symbol = ?', (symbol,))
+        conn.commit()
+        global coin
+        coin = cursor.fetchone()[0]
+
+def find_name(symbol: str):
+        cursor.execute('SELECT name FROM coins WHERE symbol = ?', (symbol,))
+        conn.commit()
+        global name
+        name = cursor.fetchone()[0]
+

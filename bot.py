@@ -2,7 +2,6 @@ import logging
 import threading
 import time
 
-import coin_dict
 import gas_price
 import database
 
@@ -51,7 +50,7 @@ async def start(message: types.Message, state: FSMContext):
            f'\n' \
            f'Я - <b>CryptoInfoBot</b>, ось, що я вмію: \n' \
            f'\n' \
-           f'Основна функція, це курс криптовалюти:\n' \
+           f'Дізнатися ціну бітка або будь якої іншої монети:\n' \
            f'\n' \
            f'Просто напиши мені "BTC" або будь яку іншу криптовалюту і ти отримаєш ціну 💥\n' \
            f'\n' \
@@ -61,8 +60,6 @@ async def start(message: types.Message, state: FSMContext):
            f'/gas - Отримати актуальну ціну на газ в мережі ETH \n' \
            f'/index - Дізнатися індекс страху та жадібності \n' \
            f'/bubbles - Зміна цін топ 100 криптовалют за 24 години \n'\
-           f'\n' \
-           f'Якщо ви не знайшли якийсь токен, просто напишіть мені і я одразу його додам 👌\n' \
            f'\n' \
            f'\n' \
            f'Адмін - @vakal33 \n' \
@@ -77,14 +74,12 @@ async def start(message: types.Message, state: FSMContext):
     markup.add('BTC', 'ETH', 'BNB', 'XRP', 'ADA', 'DOGE', 'SOL', 'DOT', 'APT', 'NEAR', 'AVAX', 'TRX')   
 
     try:
-        await database.db_table_val(user_id=message.from_user.id, user_name=message.from_user.first_name, user_surname=message.from_user.last_name, username=message.from_user.username) 
+        database.db_table_val(user_id=message.from_user.id, user_name=message.from_user.first_name, user_surname=message.from_user.last_name, username=message.from_user.username) 
     except:
         pass     
-    
-                
+                    
     if state is None:
         return
-
 
     await bot.send_message(message.chat.id, mess, parse_mode='html', reply_markup=markup)
     await ProfileStatesGroup.coin.set()
@@ -103,7 +98,7 @@ async def gas(message: types.Message, state: FSMContext):
           f'🧨 Hight ~ {gas_price.hight} GWEI\n' \
           f'\n' \
           f'<b>Інформація з:</b> {link}'
-    await bot.send_message(message.chat.id, mess, parse_mode='html')
+    await bot.send_message(message.chat.id, mess, disable_web_page_preview = True, parse_mode='html')
 
     if state is None:
         return
@@ -115,7 +110,10 @@ async def index(message: types.Message, state: FSMContext):
     url = 'https://alternative.me/crypto/fear-and-greed-index.png'
     image = (urlopen(url))
     
+    mess = f'<b>Інформація з:</b> {url}' 
+
     await bot.send_photo(message.chat.id, photo=image, parse_mode='html')
+    await bot.send_message(message.chat.id, mess, disable_web_page_preview = True, parse_mode='html')
 
     if state is None:
         return
@@ -127,6 +125,10 @@ async def bubbles(message: types.Message, state: FSMContext):
     with open('source/bubbles.png', 'rb') as img:
         await bot.send_photo(message.chat.id, img)
 
+    url = 'https://cryptobubbles.net/'
+    mess = f'<b>Інформація з:</b> {url}' 
+    await bot.send_message(message.chat.id, mess, disable_web_page_preview = True, parse_mode='html')
+
     if state is None:
         return
 
@@ -135,30 +137,38 @@ async def bubbles(message: types.Message, state: FSMContext):
 @dp.message_handler(content_types=['text'], state=ProfileStatesGroup.coin)
 async def price(message: types.Message, state: FSMContext):
     crypto_id = message.text.lower()
-    key = crypto_id
-    if key in coin_dict.coin_list:
-        crypto_name = coin_dict.coin_list.get(key)
-        price_response = cg.get_price(ids=crypto_name, vs_currencies='usd', include_24hr_change='true')
-        main_currency = 'usd'
-        price = price_response[crypto_name][main_currency]
-        usd_24h_change = price_response[crypto_name]['usd_24h_change']
-        usd_24h_change = round(usd_24h_change, 2)
-        if usd_24h_change < 0:
-            mess = f'💰 <b>{crypto_id.upper()}</b> 🔥\n' \
-                f'---------------------------------- \n' \
-                f'📍 <b>Ціна</b> ~ {price} 💲\n' \
-                f'---------------------------------- \n' \
-                f'📌 <b>24 H:</b> {usd_24h_change} % 📊'  
-            await bot.send_message(message.chat.id, mess, parse_mode='html')
-        else: 
-            mess = f'💰 <b>{crypto_id.upper()}</b> 🔥\n' \
-                f'---------------------------------- \n' \
-                f'📍 <b>Ціна</b> ~ {price} 💲\n' \
-                f'---------------------------------- \n' \
-                f'📌 <b>24 H:</b> +{usd_24h_change} % 📊'  
-            await bot.send_message(message.chat.id, mess, parse_mode='html')
+    database.find_id(symbol=crypto_id)
+    database.find_name(symbol=crypto_id)
+    coin = database.coin
+    name = database.name
 
+    price_response = cg.get_price(ids=coin, vs_currencies='usd', include_24hr_change='true')
+    usd_24h_change = round(price_response[coin]['usd_24h_change'], 2) 
+    link = cg.get_coin_by_id(id=coin)
 
+    price = price_response[coin]['usd']
+    link = link['links']['homepage'][0]
+
+    if usd_24h_change < 0:
+        mess = f'💰 <b>{name} ({crypto_id})</b> 🔥\n' \
+               f'---------------------------------- \n' \
+               f'📍 <b>Ціна</b> ~ {price} 💲\n' \
+               f'---------------------------------- \n' \
+               f'📌 <b>24 H:</b> {usd_24h_change} % 📊\n' \
+               f'---------------------------------- \n' \
+               f'🔗 <a href="{link}">Офіційний сайт</a> ℹ️'
+
+        await bot.send_message(message.chat.id, mess, disable_web_page_preview = True, parse_mode='html')
+    else: 
+        mess = f'💰 <b>{name} ({crypto_id})</b> 🔥\n' \
+               f'---------------------------------- \n' \
+               f'📍 <b>Ціна</b> ~ {price} 💲\n' \
+               f'---------------------------------- \n' \
+               f'📌 <b>24 H:</b> +{usd_24h_change} % 📊\n' \
+               f'---------------------------------- \n' \
+               f'🔗 <a href="{link}">Офіційний сайт</a> ℹ️' 
+
+        await bot.send_message(message.chat.id, mess, disable_web_page_preview = True, parse_mode='html')
 
 
 if __name__ == '__main__':

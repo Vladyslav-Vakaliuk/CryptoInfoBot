@@ -13,14 +13,12 @@ git clone https://github.com/Vladyslav-Vakaliuk/CryptoInfoBot.git
 BOT_TOKEN = 'Your Token' 
 ETHERSCAN_TOKEN = 'Your Token' 
 ``` 
-3. Install all requirements
+3. Create a `database.db` file
+4. Install all requirements
 ```
-pip install aiogram
-pip install -U pycoingecko
-pip install ethereum-gasprice
-pip install selenium
+pip install -r requirements.txt
 ```
-4. To run this bot use: 
+5. To run this bot use: 
 ```
 python bot.py
 ```
