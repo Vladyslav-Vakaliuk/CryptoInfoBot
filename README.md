@@ -12,7 +12,7 @@ https://t.me/crazycryptoinfobot
 # How to use this repository
 1. Clone this repository
 ```
-git clone https://github.com/Vladyslav-Vakaliuk/CryptoInfoBot.git
+git clone https://github.com/Vladyslav-Vakaliuk/CryptoKitty-TelegramBot
 ```
 2. Open `config.py` file and add your tokens there 
 3. Run with this comment
