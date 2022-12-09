@@ -23,7 +23,7 @@ def make_screen_bubbles():
         time.sleep(7)
         browser.save_screenshot(filename)
     except:
-        print('Something is wrong')
+        pass
     
 # def make_screen_heatmap():
 #     url = 'https://quantifycrypto.com/heatmaps'

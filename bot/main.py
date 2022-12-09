@@ -1,8 +1,9 @@
+# = = = = IMPORTS = = = = #
 import logging
 import threading
 import time
 
-import gas_price
+import gas_price as gas_price
 import database
 
 from config import BOT_TOKEN
@@ -16,9 +17,8 @@ from aiogram.dispatcher import FSMContext
 from pycoingecko import CoinGeckoAPI
 from urllib.request import urlopen
 
-logging.basicConfig(filename='logs.log', level=logging.DEBUG,
-                    format=' %(asctime)s - %(levelname)s - %(message)s')
-
+# Start logging
+logging.basicConfig(filename="logs.log", level=logging.DEBUG)
 
 # Connect to database
 database.db_connect()
@@ -48,7 +48,7 @@ def bubbles_update():
 async def start(message: types.Message, state: FSMContext):
     mess = f'Привіт, <b>{message.from_user.first_name}</b>\n' \
            f'\n' \
-           f'Я - <b>CryptoInfoBot</b>, ось, що я вмію: \n' \
+           f'Я - <b>CryptoKitty</b>, ось, що я вмію: \n' \
            f'\n' \
            f'Дізнатися ціну бітка або будь якої іншої монети:\n' \
            f'\n' \
@@ -74,7 +74,7 @@ async def start(message: types.Message, state: FSMContext):
     markup.add('BTC', 'ETH', 'BNB', 'XRP', 'ADA', 'DOGE', 'SOL', 'DOT', 'APT', 'NEAR', 'AVAX', 'TRX')   
 
     try:
-        database.db_table_val(user_id=message.from_user.id, user_name=message.from_user.first_name, user_surname=message.from_user.last_name, username=message.from_user.username) 
+        database.db_table_val(user_id=message.from_user.id, user_name=message.from_user.first_name, user_surname=message.from_user.last_name, username=message.from_user.username, language=message.from_user.language_code) 
     except:
         pass     
                     
@@ -113,7 +113,6 @@ async def index(message: types.Message, state: FSMContext):
     mess = f'<b>Інформація з:</b> {url}' 
 
     await bot.send_photo(message.chat.id, photo=image, parse_mode='html')
-    await bot.send_message(message.chat.id, mess, disable_web_page_preview = True, parse_mode='html')
 
     if state is None:
         return
@@ -125,9 +124,9 @@ async def bubbles(message: types.Message, state: FSMContext):
     with open('source/bubbles.png', 'rb') as img:
         await bot.send_photo(message.chat.id, img)
 
-    url = 'https://cryptobubbles.net/'
-    mess = f'<b>Інформація з:</b> {url}' 
-    await bot.send_message(message.chat.id, mess, disable_web_page_preview = True, parse_mode='html')
+    # url = 'https://cryptobubbles.net/'
+    # mess = f'<b>Інформація з:</b> {url}' 
+    # await bot.send_message(message.chat.id, mess, disable_web_page_preview = True, parse_mode='html')
 
     if state is None:
         return
@@ -173,4 +172,4 @@ async def price(message: types.Message, state: FSMContext):
 
 if __name__ == '__main__':
     threading.Thread(target = bubbles_update).start()
-    executor.start_polling(dp, skip_updates=True)   
+    executor.start_polling(dp, skip_updates=True, on_startup=database.create_coins_table())   

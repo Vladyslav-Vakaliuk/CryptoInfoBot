@@ -1,6 +1,6 @@
 from ethereum_gasprice.providers import EtherscanProvider
 from httpx import Client
-import config
+import config as config
 
 def gas_func():
     provider = EtherscanProvider(
