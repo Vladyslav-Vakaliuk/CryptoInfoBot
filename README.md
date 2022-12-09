@@ -3,22 +3,22 @@ You can check the price of a cryptocurrency in real time
 
 https://t.me/crazycryptoinfobot
 
-# How to use 
+# Developed with
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-0078d7.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white)
+
+
+# How to use this repository
 1. Clone this repository
 ```
 git clone https://github.com/Vladyslav-Vakaliuk/CryptoInfoBot.git
 ```
-2. Create a `config.py` file and add your tokens there, you must to add telegram bot token and etherscan API token 
+2. Open `config.py` file and add your tokens there 
+3. Run with this comment
 ```
-BOT_TOKEN = 'Your Token' 
-ETHERSCAN_TOKEN = 'Your Token' 
-``` 
-3. Create a `database.db` file
-4. Install all requirements
+docker run -d <your conttainer name>
 ```
-pip install -r requirements.txt
-```
-5. To run this bot use: 
-```
-python bot.py
-```
+
+
+
