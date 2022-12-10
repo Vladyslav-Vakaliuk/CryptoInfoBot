@@ -5,14 +5,14 @@ import config as config
 def gas_func():
     provider = EtherscanProvider(
         secret=(config.ETHERSCAN_TOKEN),
-        client=Client()
-    )
+        client=Client())
+        
     gas_result = provider.get_gasprice()
 
     global low
     global avarege
     global hight
 
-    low = gas_result[1]['regular']
-    avarege = gas_result[1]['fast']
-    hight = gas_result[1]['fastest']
+    low = gas_result[1]["regular"]
+    avarege = gas_result[1]["fast"]
+    hight = gas_result[1]["fastest"]

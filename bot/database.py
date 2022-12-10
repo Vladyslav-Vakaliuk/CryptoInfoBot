@@ -8,7 +8,7 @@ from sqlite3 import Error
 def db_connect():
     try:
         global conn, cursor
-        conn = sqlite3.connect('database.db', check_same_thread=False)
+        conn = sqlite3.connect("database.db", check_same_thread=False)
         cursor = conn.cursor()
     except Error as e:
         print(f"The error '{e}' occurred")
@@ -35,17 +35,17 @@ def create_coins_table():
         pass
 
 def db_table_val(user_id: int, user_name: str, user_surname: str, username: str, language: str):
-	cursor.execute('INSERT INTO users (user_id, user_name, user_surname, username, language) VALUES (?, ?, ?, ?, ?)', (user_id, user_name, user_surname, username, language))
+	cursor.execute("INSERT INTO users (user_id, user_name, user_surname, username, language) VALUES (?, ?, ?, ?, ?)", (user_id, user_name, user_surname, username, language))
 	conn.commit()
 
 def find_id(symbol: str):
-    cursor.execute('SELECT id, name FROM coins WHERE symbol = ?', (symbol,))
+    cursor.execute("SELECT id, name FROM coins WHERE symbol = ?", (symbol,))
     conn.commit()
     global coin
     coin = cursor.fetchone()[0]
 
 def find_name(symbol: str):
-    cursor.execute('SELECT name FROM coins WHERE symbol = ?', (symbol,))
+    cursor.execute("SELECT name FROM coins WHERE symbol = ?", (symbol,))
     conn.commit()
     global name
     name = cursor.fetchone()[0]
