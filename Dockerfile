@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.10
+FROM python:3.11.1-slim-buster
 
-WORKDIR /code
+WORKDIR /bot
 
-COPY ./requirements.txt /code/requirements.txt
+COPY requirements.txt /bot/requirements.txt
 
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /bot/requirements.txt
 
-COPY ./bot /code/bot
+COPY ./ /bot/
 
-CMD ["python", "bot/main.py"]
+CMD ["python", "bot.py"]
