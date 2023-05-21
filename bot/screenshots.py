@@ -21,4 +21,3 @@ def make_screen_bubbles():
     # browser.find_element("xpath", '/html/body/div/main/div[1]/div[2]/section/header/button[3]').click()
     # time.sleep(7)
     browser.save_screenshot(filename)
-
