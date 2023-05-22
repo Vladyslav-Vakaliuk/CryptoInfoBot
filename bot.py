@@ -12,6 +12,7 @@ from tg_bot.models.set_bot_commands import set_default_commands
 from tg_bot.models.notify_admins import on_startup_notify
 
 from tg_bot.handlers.users.start_cmd import register_start
+from tg_bot.handlers.users.help_cmd import register_help
 
 # Setup logger
 logger = logging.getLogger('')
@@ -29,6 +30,7 @@ logger.addHandler(sh)
 
 def register_all_handlers(dp): 
     register_start(dp)
+    register_help(dp)
 
 async def on_startup(dp):
     await on_startup_notify(dp)
