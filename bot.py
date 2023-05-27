@@ -1,7 +1,7 @@
 import sys
 import asyncio
 import logging
-
+import requests
 from config import BOT_TOKEN
 
 from aiogram import Bot, Dispatcher
@@ -14,6 +14,7 @@ from tg_bot.models.notify_admins import on_startup_notify
 from tg_bot.handlers.users.start_cmd import register_start
 from tg_bot.handlers.users.help_cmd import register_help
 from tg_bot.handlers.users.get_price import register_get_price
+
 
 # Setup logger
 logger = logging.getLogger('')
@@ -33,6 +34,7 @@ def register_all_handlers(dp):
     register_start(dp)
     register_help(dp)
     register_get_price(dp)
+
 
 async def on_startup(dp):
     await on_startup_notify(dp)
