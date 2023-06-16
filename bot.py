@@ -1,7 +1,6 @@
 import sys
 import asyncio
 import logging
-import requests
 from config import BOT_TOKEN
 
 from aiogram import Bot, Dispatcher
@@ -27,7 +26,7 @@ logger.addHandler(sh)
 # def register_all_middlewares(dp):
 #     pass 
 
-# def register_all_filters(dp):
+    # def register_all_filters(dp):
 #     pass
 
 def register_all_handlers(dp): 

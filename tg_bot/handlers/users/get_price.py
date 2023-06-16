@@ -16,20 +16,22 @@ def get_coin_id(coin_symbol):
 
 
 async def get_price(msg: types.Message):
-    command_args = msg.text.split()
-    crypto_name = command_args[1]
-    amount = float(command_args[0])
+    crypto_space = msg.text.split()
+    crypto_name = crypto_space[1]
+    multiply = float(crypto_space[0])
     coin_id = get_coin_id(crypto_name.lower())
-    price = cg.get_price(ids=coin_id, vs_currencies='usd')
+    price = cg.get_price(ids=coin_id, vs_currencies='usd', include_24hr_change="true")
+    usd_24h_change = round(price[coin_id]["usd_24h_change"], 2)
 
     if price:
         price = price[coin_id.lower()]['usd']
-        total_price = int(price) * amount
+        total_price = int(price) * multiply
     else:
         await msg.answer("Crypto was not found")
         return
 
-    await msg.answer(f"💰 <b>{crypto_name} ({coin_id})</b> 🔥\n📈 <b>Ціна</b>~{total_price}💲")
+    await msg.answer(
+        f'💰 <b>{crypto_name} ({coin_id})</b> 🔥\n📈 <b>Ціна</b>~{total_price}💲\n📌 <b>24 H:</b> {usd_24h_change} % 📊')
 
 
 def register_get_price(dp: Dispatcher):
